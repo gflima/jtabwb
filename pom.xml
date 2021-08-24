@@ -14,7 +14,7 @@
   </scm>
 
   <properties>
-    <ver.antlr>4.9.2</ver.antlr>
+    <ver.antlr>4.5.3</ver.antlr>
     <ver.commons>1.4</ver.commons>
     <ver.junit>4.13.2</ver.junit>
     <ver.log4j2>2.14.1</ver.log4j2>
