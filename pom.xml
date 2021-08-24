@@ -146,6 +146,10 @@
               <mainClass>cpl.g3c.launcher.Main</mainClass>
               <id>jtabwb-cpl</id>
             </program>
+            <program>
+              <mainClass>cpl.g3c.interactive.Main</mainClass>
+              <id>jtabwb-g3c-top</id>
+            </program>
           </programs>
           <assembleDirectory>${project.build.directory}/cli</assembleDirectory>
           <repositoryName>lib</repositoryName>
@@ -191,7 +195,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.4.0</version>
         <configuration>
-          <mainClass>cpl.g3c.launcher.Main</mainClass>
+          <mainClass>cpl.g3c.interactive.Main</mainClass>
           <addResourcesToClasspath>true</addResourcesToClasspath>
         </configuration>
       </plugin>
