@@ -1,3 +1,3 @@
-Forked version of *Java Tableaux Workbench*
+Fork of the *Java Tableaux Workbench*
 
 See https://github.com/ferram/jtabwb]
