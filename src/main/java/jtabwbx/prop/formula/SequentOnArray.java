@@ -262,7 +262,7 @@ public class SequentOnArray implements _Sequent, Cloneable {
 
   @Override
   public String toString() {
-    return toString(this.getLeftFormulas()) + "==>\n" + toString(this.getRightFormulas());
+    return toString(this.getLeftFormulas()) + " => " + toString(this.getRightFormulas());
   }
 
   private String toString(Collection<Formula> list) {
