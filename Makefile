@@ -1,10 +1,14 @@
 .PHONY: all
 all:
-	@echo 'usage: ${MAKE} [compile|clean|install]'
+	@echo 'usage: ${MAKE} [compile|clean|package|install]'
 
 .PHONY: compile
 compile:
 	mvn compile
+
+.PHONY: package
+package:
+	mvn package
 
 .PHONY: clean
 clean:
