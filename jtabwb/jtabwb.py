@@ -217,18 +217,24 @@ class JTabWb:
                 return True
         return False
 
-    def prove(self, limit=None, stats=None):
+    def prove(self, limit=None, timeout=None, stats=None):
+        from time import time as now
         limit = limit if limit is not None else sys.maxsize
+        elapsed = 0
         refines = 0
 
         def done(status):
             if stats is not None:
+                stats['time'] = elapsed
                 stats['refinements'] = refines
             return status
+        t0 = now()
         while refines < limit:
-            if self.exhausted:
-                return done(False)
-            if self.complete:
+            elapsed = now() - t0
+            if timeout is not None and elapsed > timeout:
+                return done(None)
+            goals = self.goalIds
+            if not goals:
                 return done(True)
             id = min(self.goalIds)
             app = self.getApplicableRules(id)
@@ -237,8 +243,8 @@ class JTabWb:
             refines += 1
             rule = app[0]
             # --
-            print(f'#{refines}, goal={id}, rule={rule.name()}')
-            print(f'\t{self.getGoal(id)}')
+            # print(f'#{refines}, goal={id}, rule={rule.name()}')
+            # print(f'\t{self.getGoal(id)}')
             # --
             self.refine(id, rule)
         return done(None)
