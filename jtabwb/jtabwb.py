@@ -1,4 +1,7 @@
+from collections.abc import Mapping
+from collections import deque
 from pathlib import Path
+import sys
 
 import jpype
 import jpype.imports
@@ -8,6 +11,31 @@ JTABWB_JAR = str(Path(__file__).resolve().parent
 jpype.startJVM(classpath=[JTABWB_JAR])
 if True:
     from cpl.g3c.interactive import Prover, ProverException
+
+
+__all__ = [
+    'JTabWb',
+]
+
+
+@jpype.JImplementationFor('jtabwbx.prop.formula.Formula')
+class _JFormula:
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return str(self.toString())
+
+    @property
+    def type(self):
+        return str(self.getFormulaType())
+
+    @property
+    def args(self):
+        return self.immediateSubformulas() or []
+
+    def isAtom(self):
+        return self.type == 'ATOMIC_WFF'
 
 
 @jpype.JImplementationFor('jtabwbx.prop.formula.SequentOnArray')
@@ -40,8 +68,16 @@ class _JRuleAxiom:
         return 0
 
     @property
+    def sequent(self):
+        return self.getPremise()
+
+    @property
     def formula(self):
-        return None
+        rhs = self.sequent.rhs
+        for x in self.sequent.lhs:
+            if x.isAtom() and x in rhs:
+                return x
+        raise RuntimeError('should not get here')
 
     def isAxiom(self):
         return True
@@ -73,6 +109,10 @@ class _JRuleOther:
         return self.numberOfSubgoals()
 
     @property
+    def sequent(self):
+        return self.getPremise()
+
+    @property
     def formula(self):
         return self.mainFormula()
 
@@ -86,14 +126,43 @@ class _JRuleOther:
         return str(self).startswith('RIGHT')
 
 
+class FakeDict (Mapping):
+    __slots__ = ('_data', '_getKeys', '_getItem')
+
+    def __init__(self, getKeys, getItem):
+        self._getKeys = getKeys
+        self._getItem = getItem
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return str(dict(self))
+
+    def __getitem__(self, key):
+        return self._getItem(key)
+
+    def __iter__(self):
+        return iter(self._getKeys())
+
+    def __len__(self):
+        return len(self._getKeys())
+
+
 class JTabWb:
+    """Prover state."""
 
     __slots__ = (
-        '_prover',
+        '_prover',              # The underlying prover.
+        '_appRulesDict',        # Alias to applicable rules.
     )
 
-    def __init__(self):
+    def __init__(self, text=None):
         self._prover = Prover()
+        self._appRulesDict = FakeDict(self.getGoalIds,
+                                      self.getApplicableRules)
+        if text is not None:
+            self.load(text)
 
     def reset(self):
         self._prover.reset()
@@ -104,11 +173,26 @@ class JTabWb:
         except ProverException as e:
             raise SyntaxError(e)
 
+    @property
+    def goals(self):
+        return self.getGoals()
+
     def getGoals(self):
         return dict(self._prover.getGoals())
 
+    @property
+    def goalIds(self):
+        return self.getGoalIds()
+
+    def getGoalIds(self):
+        return self._prover.getGoals().keys()
+
     def getGoal(self, id):
         return self._prover.getGoal(id)
+
+    @property
+    def appRules(self):
+        return self._appRulesDict
 
     def getApplicableRules(self, id):
         return list(self._prover.getApplicableRules(id) or [])
@@ -116,24 +200,67 @@ class JTabWb:
     def refine(self, id, rule):
         self._prover.refine(id, rule)
 
+    @property
+    def complete(self):
+        return self.proofIsComplete()
 
-if __name__ == '__main__':
-    sc = JTabWb()
-    sc.load('=>A|~A')
-    print(sc.getGoals())
-    seq = sc.getGoal(0)
-    print(seq, seq.lhs, seq.rhs)
-    print(sc.getApplicableRules(0))
-    rule = sc.getApplicableRules(0)[0]
-    print(rule, rule.formula, rule.numPremises,
-          rule.isAxiom(), rule.isLeft(), rule.isRight())
-    sc.refine(0, rule)
-    print(sc.getGoal(1))
-    rule = sc.getApplicableRules(1)[0]
-    print(rule, rule.formula, rule.numPremises,
-          rule.isAxiom(), rule.isLeft(), rule.isRight())
-    sc.refine(1, rule)
-    print(sc.getGoal(2))
-    rule = sc.getApplicableRules(2)[0]
-    print(rule, rule.formula, rule.numPremises,
-          rule.isAxiom(), rule.isLeft(), rule.isRight())
+    def proofIsComplete(self):
+        return len(self.getGoalIds()) == 0
+
+    @property
+    def exhausted(self):
+        return self.proofIsExhausted()
+
+    def proofIsExhausted(self):
+        for id in self.getGoalIds():
+            if not self.getApplicableRules(id):
+                return True
+        return False
+
+    def prove(self, limit=None, stats=None):
+        limit = limit if limit is not None else sys.maxsize
+        refines = 0
+
+        def done(status):
+            if stats is not None:
+                stats['refinements'] = refines
+            return status
+        while refines < limit:
+            if self.exhausted:
+                return done(False)
+            if self.complete:
+                return done(True)
+            id = min(self.goalIds)
+            app = self.getApplicableRules(id)
+            if not app:
+                return done(False)
+            refines += 1
+            rule = app[0]
+            # --
+            print(f'#{refines}, goal={id}, rule={rule.name()}')
+            print(f'\t{self.getGoal(id)}')
+            # --
+            self.refine(id, rule)
+        return done(None)
+
+
+# if __name__ == '__main__':
+#     sc = JTabWb()
+#     sc.load('=>A|~A')
+#     print(sc.getGoals())
+#     seq = sc.getGoal(0)
+#     print(seq, seq.lhs, seq.rhs)
+#     print(sc.getApplicableRules(0))
+#     rule = sc.getApplicableRules(0)[0]
+#     print(rule, rule.formula, rule.numPremises,
+#           rule.isAxiom(), rule.isLeft(), rule.isRight())
+#     sc.refine(0, rule)
+#     print(sc.getGoal(1))
+#     rule = sc.getApplicableRules(1)[0]
+#     print(rule, rule.formula, rule.numPremises,
+#           rule.isAxiom(), rule.isLeft(), rule.isRight())
+#     sc.refine(1, rule)
+#     print(sc.getGoal(2))
+#     rule = sc.getApplicableRules(2)[0]
+#     print(rule, rule.formula, rule.numPremises,
+#           rule.isAxiom(), rule.isLeft(), rule.isRight())

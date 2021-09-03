@@ -35,4 +35,9 @@ public class ClashDetectionRule implements _ClashDetectionRule {
   public ProofSearchResult status() {
     return premise.isIdentityAxiom() ? ProofSearchResult.SUCCESS : ProofSearchResult.FAILURE;
   }
+
+  public _Sequent getPremise() {
+    return premise;
+  }
+
 }

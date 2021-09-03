@@ -63,4 +63,8 @@ public class Rule_Left_AND implements _RegularRule {
     return mainFormula;
   }
 
+  public _Sequent getPremise() {
+    return premise;
+  }
+
 }

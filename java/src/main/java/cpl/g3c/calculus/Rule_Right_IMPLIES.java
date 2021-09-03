@@ -62,4 +62,8 @@ public class Rule_Right_IMPLIES implements _RegularRule {
     return mainFormula;
   }
 
+  public _Sequent getPremise() {
+    return premise;
+  }
+
 }

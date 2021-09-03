@@ -105,8 +105,8 @@
           <archive>
             <manifestEntries>
               <Multi-Release>true</Multi-Release>
-              <!-- <Implementation-Title>${project.name}</Implementation-Title> -->
-              <!-- <Implementation-Version>${project.version}-${buildNumber}</Implementat -->ion-Version>
+              <Implementation-Title>${project.name}</Implementation-Title>
+              <Implementation-Version>${project.version}-${buildNumber}</Implementation-Version>
             </manifestEntries>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>

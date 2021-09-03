@@ -70,4 +70,8 @@ public class Rule_Left_IMPLIES implements _RegularRule {
     return mainFormula;
   }
 
+  public _Sequent getPremise() {
+    return premise;
+  }
+
 }
