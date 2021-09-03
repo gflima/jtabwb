@@ -1,16 +1,10 @@
 .PHONY: all
 all:
-	@echo 'usage: ${MAKE} [compile|check|clean|package|install]'
+	@echo 'usage: ${MAKE} [check|clean|install|package]'
 
 .PHONY: check
 check:
 	nosetests -v ./tests
-
-.PHONY: compile package
-compile package:
-	make -C java $@
-	cp java/target/jtabwb-1.0-jar-with-dependencies.jar ./jtabwb
-
 
 .PHONY: clean
 clean:
@@ -20,3 +14,8 @@ clean:
 .PHONY: install
 install: package
 	pip install .
+
+.PHONY: package
+package:
+	make -C java $@
+	cp java/target/jtabwb-1.0-jar-with-dependencies.jar ./jtabwb
