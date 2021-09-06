@@ -112,6 +112,11 @@ public class Prover {
         return this._goals;
     }
 
+    // Get the ids of all goals.
+    public Set<Integer> getGoalIds () {
+        return this._goals.keySet();
+    }
+
     // Gets the rules applicable to goal.
     public Collection<_AbstractRule> getApplicableRules (int id) {
         _Sequent goal = this.getGoal (id);

@@ -185,7 +185,7 @@ class JTabWb:
         return self.getGoalIds()
 
     def getGoalIds(self):
-        return self._prover.getGoals().keys()
+        return self._prover.getGoalIds()
 
     def getGoal(self, id):
         return self._prover.getGoal(id)
@@ -234,9 +234,9 @@ class JTabWb:
             if timeout is not None and elapsed > timeout:
                 return done(None)
             goals = self.goalIds
-            if not goals:
+            if len(goals) == 0:
                 return done(True)
-            id = min(self.goalIds)
+            id = next(self.goalIds.iterator())
             app = self.getApplicableRules(id)
             if not app:
                 return done(False)
@@ -250,23 +250,24 @@ class JTabWb:
         return done(None)
 
 
-# if __name__ == '__main__':
-#     sc = JTabWb()
-#     sc.load('=>A|~A')
-#     print(sc.getGoals())
-#     seq = sc.getGoal(0)
-#     print(seq, seq.lhs, seq.rhs)
-#     print(sc.getApplicableRules(0))
-#     rule = sc.getApplicableRules(0)[0]
-#     print(rule, rule.formula, rule.numPremises,
-#           rule.isAxiom(), rule.isLeft(), rule.isRight())
-#     sc.refine(0, rule)
-#     print(sc.getGoal(1))
-#     rule = sc.getApplicableRules(1)[0]
-#     print(rule, rule.formula, rule.numPremises,
-#           rule.isAxiom(), rule.isLeft(), rule.isRight())
-#     sc.refine(1, rule)
-#     print(sc.getGoal(2))
-#     rule = sc.getApplicableRules(2)[0]
-#     print(rule, rule.formula, rule.numPremises,
-#           rule.isAxiom(), rule.isLeft(), rule.isRight())
+if __name__ == '__main__':
+    sc = JTabWb()
+    sc.load('=>A|~A')
+    print(sc.getGoals())
+    print(next(sc.goalIds.iterator()))
+    seq = sc.getGoal(0)
+    print(seq, seq.lhs, seq.rhs)
+    print(sc.getApplicableRules(0))
+    rule = sc.getApplicableRules(0)[0]
+    print(rule, rule.formula, rule.numPremises,
+          rule.isAxiom(), rule.isLeft(), rule.isRight())
+    sc.refine(0, rule)
+    print(sc.getGoal(1))
+    rule = sc.getApplicableRules(1)[0]
+    print(rule, rule.formula, rule.numPremises,
+          rule.isAxiom(), rule.isLeft(), rule.isRight())
+    sc.refine(1, rule)
+    print(sc.getGoal(2))
+    rule = sc.getApplicableRules(2)[0]
+    print(rule, rule.formula, rule.numPremises,
+          rule.isAxiom(), rule.isLeft(), rule.isRight())
