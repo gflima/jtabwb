@@ -250,24 +250,26 @@ class JTabWb:
         return done(None)
 
 
-if __name__ == '__main__':
-    sc = JTabWb()
-    sc.load('=>A|~A')
-    print(sc.getGoals())
-    print(next(sc.goalIds.iterator()))
-    seq = sc.getGoal(0)
-    print(seq, seq.lhs, seq.rhs)
-    print(sc.getApplicableRules(0))
-    rule = sc.getApplicableRules(0)[0]
-    print(rule, rule.formula, rule.numPremises,
-          rule.isAxiom(), rule.isLeft(), rule.isRight())
-    sc.refine(0, rule)
-    print(sc.getGoal(1))
-    rule = sc.getApplicableRules(1)[0]
-    print(rule, rule.formula, rule.numPremises,
-          rule.isAxiom(), rule.isLeft(), rule.isRight())
-    sc.refine(1, rule)
-    print(sc.getGoal(2))
-    rule = sc.getApplicableRules(2)[0]
-    print(rule, rule.formula, rule.numPremises,
-          rule.isAxiom(), rule.isLeft(), rule.isRight())
+# if __name__ == '__main__':
+#     sc = JTabWb()
+#     sc.load('=>A|~A')
+#     print(sc.getGoals())
+#     print(next(sc.goalIds.iterator()))
+#     seq = sc.getGoal(0)
+#     print(seq, seq.lhs, seq.rhs)
+#     print(sc.getApplicableRules(0))
+#     rule = sc.getApplicableRules(0)[0]
+#     print(rule, rule.formula, rule.numPremises,
+#           rule.isAxiom(), rule.isLeft(), rule.isRight())
+#     sc.refine(0, rule)
+#     print(sc.getGoal(1))
+#     rule = sc.getApplicableRules(1)[0]
+#     print(rule, rule.formula, rule.numPremises,
+#           rule.isAxiom(), rule.isLeft(), rule.isRight())
+#     sc.refine(1, rule)
+#     print(sc.getGoal(2))
+#     rule = sc.getApplicableRules(2)[0]
+#     print(rule, rule.formula, rule.numPremises,
+#           rule.isAxiom(), rule.isLeft(), rule.isRight())
+#     sc.load('AvB=>AvB')
+#     print(sc.appRules)
